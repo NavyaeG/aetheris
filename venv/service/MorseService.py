@@ -18,7 +18,7 @@ class MorseService:
 
     async def morseCode(self, message: str):
         try:
-            logger.info(f"Flashing morse code for string: {message}.")
+            logger.info(f"Flashing morse code for string: {message}")
             message = message.upper()
             bulbState = self.bulbService.getBulbState()
             for char in message:
@@ -33,7 +33,7 @@ class MorseService:
                     await asyncio.sleep(1.5)
                 elif char == '/':
                     await asyncio.sleep(3.5)
-            logger.info(f"Done flashing morse code for string: {message}.")
+            logger.info(f"Done flashing morse code for string: {message}")
             self.bulbService.setBulbState(bulbState)
         except Exception as e:
-            logger.info(f"Error flash morse code for string: {message}: {str(e)}")
+            logger.info(f"Error flashing morse code for string: {message}: {str(e)}")

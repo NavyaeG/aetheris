@@ -23,12 +23,12 @@ class BulbService:
     def turnOn(self):
         device = self.createDevice()
         device.turn_on()
-        logger.info("Light turned on.")
+        logger.info("Light turned on")
 
     def turnOff(self):
         device = self.createDevice()
         device.turn_off()
-        logger.info("Light turned off.")
+        logger.info("Light turned off")
 
     async def alarm(self, alarm: Alarm):
         logger.info("Starting alarm")
@@ -43,7 +43,7 @@ class BulbService:
             current_brightness += 1
             device.set_brightness_percentage(current_brightness)
             await asyncio.sleep(0.5)
-        logger.info("Alarm completed.")
+        logger.info("Completed alarm")
 
     async def flashLight(self, duration):
         device = self.createDevice()
@@ -65,7 +65,7 @@ class BulbService:
             mode = state["mode"]
             return BulbState(brightness, temperature, isOn, mode, hsv)
         except Exception as e:
-            logger.error(f"Error retrieving bulb values: {e}.")
+            logger.error(f"Error retrieving bulb values: {e}")
             return None
         
     def setBulbState(self, bulbState: BulbState):
@@ -79,7 +79,7 @@ class BulbService:
                 device.set_colourtemp(bulbState.temperature)
             if(bulbState.isOn):
                 device.turn_on()
-            logger.info("Set bulb state to previous state.")
+            logger.info("Set bulb state to previous state")
         except Exception as e:
-            logger.error(f"Error setting bulb state to previous state: {e}.")
+            logger.error(f"Error setting bulb state to previous state: {e}")
             return None

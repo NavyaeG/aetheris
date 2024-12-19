@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException
 from service.BulbService import BulbService
 from service.AlarmService import AlarmService
 from model.Alarm import Alarm
 from model.Morse import Morse
 from config.LoggerConfig import LoggerConfig
 from service.MorseService import MorseService
+from service.TaskManagerService import taskManagerService
 
 logger = LoggerConfig.configure_logger()
 
@@ -51,10 +52,10 @@ def getAlarms():
     return alarmService.getAllAlarms()
 
 @app.post("/morse-code")
-def morseCode(morse: Morse, backgroundTasks: BackgroundTasks):
+async def morseCode(morse: Morse):
     try:
-        backgroundTasks.add_task(morseService.morseCode, morse.text)
-        return {"status": "success", "message": f"Flashing morse code for string: {morse.text}."}
+        await taskManagerService.addTask("morse", morseService.morseCode, morse.text)
+        return {"status": "success", "message": f"Flashing morse code for string: {morse.text}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing morse code: {str(e)}")
 

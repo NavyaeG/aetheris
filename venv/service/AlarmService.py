@@ -1,6 +1,4 @@
-import asyncio
 from datetime import datetime, timedelta
-from typing import Optional
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from service.BulbService import BulbService
@@ -8,6 +6,7 @@ from model.Alarm import Alarm
 from config.LoggerConfig import logger
 from service.AlarmListService import AlarmListService
 from apscheduler.triggers.cron import CronTrigger
+from service.TaskManagerService import taskManagerService
 
 class AlarmService:
 
@@ -49,7 +48,7 @@ class AlarmService:
 
             return triggerDate
         except ValueError as e:
-            logger.error(f"Invalid time format. Please provide time in 'HH:MM' format. Error: {e}.")
+            logger.error(f"Invalid time format. Please provide time in 'HH:MM' format. Error: {e}")
 
     def scheduleAlarm(self, alarm: Alarm):
         try:
@@ -60,13 +59,13 @@ class AlarmService:
             else:
                 trigger = DateTrigger(run_date=triggerDate)
 
-            job = self.backgroundScheduler.add_job(self.bulbService.alarm, trigger, args=[alarm], id=alarm.alarmId)
+            job = self.backgroundScheduler.add_job(taskManagerService.addTask, trigger, args=["alarm", self.bulbService.alarm, alarm], id=alarm.alarmId)
             self.alarmListService.addAlarm(alarm)
             logger.info(f"Alarm {alarm.alarmId} scheduled at {alarm.alarmTime}.")
-            return {"status": "success", "message": f"Alarm scheduled for {triggerDate} with repeat: {alarm.repeat}."}
+            return {"status": "success", "message": f"Alarm scheduled for {triggerDate} with repeat: {alarm.repeat}"}
         except Exception as e:
             logger.error(f"Error scheduling alarm: {str(e)}.")
-            return {"status": "error", "message": f"Error scheduling alarm."}
+            return {"status": "error", "message": f"Error scheduling alarm"}
 
     def cancelAlarm(self, alarmId: str):
         try:
@@ -76,13 +75,13 @@ class AlarmService:
                     job.remove()
                 self.alarmListService.removeAlarm(alarmId)
                 logger.info(f"Alarm {alarmId} canceled.")
-                return {"status": "success", "message": f"Alarm {alarmId} canceled."}
+                return {"status": "success", "message": f"Alarm {alarmId} canceled"}
             else:
                 logger.warning(f"Alarm {alarmId} not found.")
-                return {"status": "not found", "message": f"Alarm {alarmId} not found."}
+                return {"status": "not found", "message": f"Alarm {alarmId} not found"}
         except Exception as e:
             logger.error(f"Error canceling alarm {alarmId}: {str(e)}")
-            return {"status": "error", "message": f"Error canceling alarm."}
+            return {"status": "error", "message": f"Error canceling alarm"}
         
     def getAllAlarms(self):
         return {"alarms": [alarm.__dict__ for alarm in self.alarmListService.getAlarmList().values()]}

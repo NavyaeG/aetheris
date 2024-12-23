@@ -25,7 +25,7 @@ class BulbService:
         device.turn_on()
         logger.info("Light turned on")
 
-    def turnOff(self):
+    async def turnOff(self):
         device = self.createDevice()
         device.turn_off()
         logger.info("Light turned off")
@@ -42,8 +42,11 @@ class BulbService:
         while current_brightness <= 100:
             current_brightness += 1
             device.set_brightness_percentage(current_brightness)
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(17)
         logger.info("Completed alarm")
+
+        await asyncio.sleep(1020)
+        self.turnOff()
 
     async def flashLight(self, duration):
         device = self.createDevice()

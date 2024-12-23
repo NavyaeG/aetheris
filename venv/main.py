@@ -3,22 +3,25 @@ from service.BulbService import BulbService
 from service.AlarmService import AlarmService
 from model.Alarm import Alarm
 from model.Morse import Morse
+from model.ColorGradientAnimation import ColorGradientAnimation
 from config.LoggerConfig import LoggerConfig
 from service.MorseService import MorseService
 from service.TaskManagerService import taskManagerService
+from service.ColorService import ColorService
 
 logger = LoggerConfig.configure_logger()
 
 app = FastAPI()
 
+colorService = ColorService()
 bulbService = BulbService()
 alarmService = AlarmService()
 morseService = MorseService()
 
 @app.post("/turn-off")
-def turnOffLight():
+async def turnOffLight():
     try:
-        bulbService.turnOff()
+        await taskManagerService.addTask("bulbOff", bulbService.turnOff)
         return {"status": "success", "message": "Light turned off successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error turning off light: {str(e)}")
@@ -66,3 +69,15 @@ def getBulbStatus():
         return {"status": "success", "bulb": bulbState}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting status of bulb: {str(e)}")
+    
+@app.post("/cga")
+async def startFlowyColor(cga: ColorGradientAnimation):
+    try:
+        if(cga.state):
+            await taskManagerService.addTask("colorGradientAnimationOn", colorService.colorGradientAnimationOn)
+            return {"status": "success", "message": f"Color gradient animation on"}
+        elif(not cga.state):
+            await taskManagerService.addTask("colorGradientAnimationOff", colorService.colorGradientAnimationOff)
+            return {"status": "success", "message": f"Color gradient animation turned off"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing color gradient request: {str(e)}")

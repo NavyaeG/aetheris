@@ -1,7 +1,4 @@
-venv/Include/
-venv/Lib/
-venv/Scripts/
-venv/pyvenv.cfg
+venv/
 
 #Ignore all pycache folders
 **/__pycache__/
